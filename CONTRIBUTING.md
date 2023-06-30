@@ -2,7 +2,74 @@
 
 This document provides guidelines for contributing to samples.
 
-## Dependencies
+## Before you begin
+
+### Sign our Contributor License Agreement
+
+Contributions to this project must be accompanied by a
+[Contributor License Agreement](https://cla.developers.google.com/about) (CLA).
+You (or your employer) retain the copyright to your contribution; this simply
+gives us permission to use and redistribute your contributions as part of the
+project.
+
+If you or your current employer have already signed the Google CLA (even if it
+was for a different project), you probably don't need to do it again.
+
+Visit <https://cla.developers.google.com/> to see your current agreements or to
+sign a new one.
+
+### Review our Community Guidelines
+
+This project follows
+[Google's Open Source Community Guidelines](https://opensource.google/conduct/).
+
+### Review Terraform sample requirements, best practices, and code style
+
+If you are submitting or reviewing a pull request, make sure that the sample
+follows the rules for quality and consistency.
+
+#### Code style
+
+For samples that you add to the `terraform-docs-samples` GitHub repository,
+make sure that they follow the style guidelines for Terraform described in the
+[Effective samples style guide](https://googlecloudplatform.github.io/samples-style-guide/).
+
+#### Other requirements and best practices
+
+* (Required) Samples maintained in `terraform-docs-samples` must include only
+  `resource` and `data` blocks. Don't include `module` blocks in your samples.
+
+  Note: If you want to use a sample that contains `module`
+  blocks, you can use the [Cloud Foundation Toolkit
+  modules](https://g.co/dev/terraformfoundation).
+
+* (Required) Don't create a `README` file for your sample.
+
+* (Recommended) If a sample needs an API enabled, add the service to the
+  [Test setup file](https://github.com/terraform-google-modules/terraform-docs-samples/blob/main/test/setup/main.tf).
+
+* (Recommened) If a sample adds a new directory, add code owners to the [CODEOWNERS
+  file](https://github.com/terraform-google-modules/terraform-docs-samples/blob/main/.github/CODEOWNERS).
+
+* (Recommended) In each resource that has a `name` argument, include the `name`
+  argument first in the resource block.
+
+* (Recommended) For maintainability, don't include other-vendor resources.
+   Multi-cloud isn't recommended in `terraform-docs-samples`. Only Google
+   provider resources are  recommended. For example, `terraform-docs-samples`
+   samples shouldn't have Azure or AWS resources. For multi-cloud samples,
+   [create a blueprint](https://g.co/dev/terraformfoundation) instead.
+
+* (Recommended) For simplicity and consistency, use `default` as the Terraform
+  resource name when possible. The only time it isn't possible is if a single
+  sample has multiple resources of the same type. They can't all have the same
+  resource name. In this case, use what makes sense for your sample.
+
+* (Recommended) If your sample enables an API, add
+  `disable_on_destroy = false` to prevent the API from being disabled when
+  deleting the resources.
+
+## Dependencies for testing
 
 The following dependencies must be installed on the development system:
 
@@ -10,14 +77,18 @@ The following dependencies must be installed on the development system:
 - [Google Cloud SDK][google-cloud-sdk]
 - [make]
 
-Cloud Shell is recommended for development as these tools are pre-installed.
+Cloud Shell is recommended for development because these tools are pre-installed.
 
 ## Linting and Formatting
+
 Files in the repository are linted or formatted to maintain a standard of quality and statically validated.
 You can run this check locally:
 
 ```
 cd terraform-docs-samples
+```
+
+```
 make docker_test_lint
 ```
 
@@ -27,7 +98,7 @@ Integration tests are used to verify that the samples are actuatable
 by Terraform. Tests are dynamically discovered based on directories in
 repo root and executed using the [blueprint-test](https://pkg.go.dev/github.com/GoogleCloudPlatform/cloud-foundation-toolkit/infra/blueprint-test) framework.
 
-### Test Environment
+### Set up the Test Environment
 
 The easiest way to test the samples are in isolated test projects. The
 setup for projects are defined in [test/setup](./test/setup/)
@@ -36,25 +107,44 @@ directory.
 To use this setup, you need to authenticate gcloud with an identity that has
 Project Creator access on a folder and the Billing Account User role on a billing account.
 
-Set the following environment variables.
-```
-export TF_VAR_org_id="your_org_id"
-export TF_VAR_folder_id="your_folder_id"
-export TF_VAR_billing_account="your_billing_account_id"
-```
+1. Get you project's organization ID and folder ID:
 
-Ensure that you are locally authenticated using gcloud:
+   ```
+   gcloud projects get-ancestors <YOUR_PROJECT_ID>
+   ```
 
-```
-gcloud auth application-default login
-```
+1. Get your project's billing ID by opening https://console.cloud.google.com/billing.
 
-With these settings in place, you can prepare a test project using Docker:
 
-```
-cd terraform-docs-samples
-make docker_test_prepare
-```
+1. Set the following environment variables.
+
+   ```
+   export TF_VAR_org_id="your_org_id"
+   ```
+
+   ```
+   export TF_VAR_folder_id="your_folder_id"
+   ```
+
+   ```
+   export TF_VAR_billing_account="your_billing_account_id"
+   ```
+
+1. Ensure that you are locally authenticated using gcloud:
+
+   ```
+   gcloud auth application-default login
+   ```
+
+1. With these settings in place, you can prepare a test project using Docker:
+
+   ```
+   cd terraform-docs-samples
+   ```
+
+   ```
+   make docker_test_prepare
+   ```
 
 Sample Output:
 
